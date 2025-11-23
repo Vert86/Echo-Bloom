@@ -12,7 +12,7 @@ export const FarmShop: React.FC = () => {
       selectTool('plant', type);
       toggleShop();
     } else if (category === 'animals') {
-      selectTool('select', type);
+      selectTool('place-animal', type);
       toggleShop();
     } else if (category === 'buildings') {
       selectTool('build', type);

@@ -3,7 +3,7 @@ import { ShoppingBag, Apple, DollarSign, Star, TrendingUp } from 'lucide-react';
 import { useFarmStore } from '../store/farmStore';
 
 export const FarmUI: React.FC = () => {
-  const { player, selectedTool, selectTool, toggleShop, notifications } = useFarmStore();
+  const { player, selectedTool, selectedItem, selectTool, toggleShop, notifications } = useFarmStore();
 
   const xpForNextLevel = player.level * 100;
   const xpProgress = (player.experience / xpForNextLevel) * 100;
@@ -106,7 +106,16 @@ export const FarmUI: React.FC = () => {
 
         {selectedTool && (
           <div className="mt-3 text-center text-eco-400 text-sm animate-pulse">
-            Click on the farm grid to use the selected tool
+            {selectedTool === 'plant' && selectedItem && `Click on brown soil to plant ${selectedItem}`}
+            {selectedTool === 'plant' && !selectedItem && 'Buy seeds from shop first!'}
+            {selectedTool === 'place-animal' && selectedItem && `Click on empty grass to place ${selectedItem}`}
+            {selectedTool === 'place-animal' && !selectedItem && 'Buy an animal from shop first!'}
+            {selectedTool === 'water' && 'Click on crops to water them'}
+            {selectedTool === 'harvest' && 'Click on fully grown crops (glowing) to harvest'}
+            {selectedTool === 'feed' && 'Click on animals to feed them'}
+            {selectedTool === 'build' && selectedItem && `Click on empty area to place ${selectedItem}`}
+            {selectedTool === 'build' && !selectedItem && 'Buy a building from shop first!'}
+            {selectedTool === 'select' && 'Click on crops, animals, or buildings to see details'}
           </div>
         )}
       </div>

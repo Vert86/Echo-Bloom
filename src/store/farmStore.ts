@@ -34,7 +34,7 @@ interface FarmState {
   // Game state
   currentTime: number;
   isPaused: boolean;
-  selectedTool: 'plant' | 'water' | 'harvest' | 'feed' | 'build' | 'select' | null;
+  selectedTool: 'plant' | 'water' | 'harvest' | 'feed' | 'build' | 'select' | 'place-animal' | null;
   selectedItem: string | null;
 
   // UI state
@@ -46,7 +46,7 @@ interface FarmState {
   // Actions
   initializeFarm: () => void;
   tick: () => void;
-  selectTool: (tool: 'plant' | 'water' | 'harvest' | 'feed' | 'build' | 'select' | null, item?: string) => void;
+  selectTool: (tool: 'plant' | 'water' | 'harvest' | 'feed' | 'build' | 'select' | 'place-animal' | null, item?: string) => void;
   clickTile: (x: number, y: number) => void;
 
   // Crop actions
@@ -279,6 +279,9 @@ export const useFarmStore = create<FarmState>((set, get) => ({
 
     if (selectedTool === 'plant' && selectedItem) {
       get().plantCrop(selectedItem as CropType, x, y);
+    } else if (selectedTool === 'place-animal' && selectedItem) {
+      get().buyAnimal(selectedItem as AnimalType, x, y);
+      get().selectTool(null);
     } else if (selectedTool === 'water') {
       const crop = state.crops.find(c => c.position.x === x && c.position.y === y);
       if (crop) get().waterCrop(crop.id);
@@ -290,6 +293,23 @@ export const useFarmStore = create<FarmState>((set, get) => ({
       if (animal) get().feedAnimal(animal.id);
     } else if (selectedTool === 'build' && selectedItem) {
       get().startBuilding(selectedItem as FarmBuildingType, x, y);
+    } else if (selectedTool === 'select') {
+      // Show info about what's on this tile
+      const crop = state.crops.find(c => c.position.x === x && c.position.y === y);
+      const animal = state.animals.find(a => a.position.x === x && a.position.y === y);
+      const building = state.buildings.find(b => {
+        const bData = BUILDING_DATA[b.type];
+        return x >= b.position.x && x < b.position.x + bData.size.width &&
+               y >= b.position.y && y < b.position.y + bData.size.height;
+      });
+
+      if (crop) {
+        get().addNotification(`${CROP_DATA[crop.type].name} - ${Math.floor(crop.growthProgress)}% grown`);
+      } else if (animal) {
+        get().addNotification(`${ANIMAL_DATA[animal.type].name} - ${Math.floor(animal.happiness)}% happy`);
+      } else if (building) {
+        get().addNotification(`${BUILDING_DATA[building.type].name} - Level ${building.level}`);
+      }
     }
   },
 
